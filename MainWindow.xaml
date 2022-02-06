@@ -1,0 +1,92 @@
+﻿<Window x:Class="TDNFGenerator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TDNFGenerator"
+        ResizeMode="NoResize"
+        mc:Ignorable="d"
+        Title="Генератор завдань" Height="450" Width="1000">
+    <Grid>
+        <TextBox Text="{Binding DDNF}" HorizontalAlignment="Left" Height="23" Margin="95,93,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="877"/>
+        <TextBlock HorizontalAlignment="Left" Margin="42,94,0,0" TextWrapping="Wrap" Text="ДДНФ:" VerticalAlignment="Top" Height="22" Width="48" RenderTransformOrigin="-0.178,0.313"/>
+        <Button Content="Визначити" Command="{Binding OpenWindowCommand}" HorizontalAlignment="Left" Margin="172,37,0,0" VerticalAlignment="Top" Width="64"/>
+        <Button Content="Зберегти" Command="{Binding SaveCommand}" HorizontalAlignment="Left" Margin="306,37,0,0" VerticalAlignment="Top" Width="55"/>
+        <TextBlock HorizontalAlignment="Left" Margin="403,38,0,0" TextWrapping="Wrap" Text="Кількість змінних:" VerticalAlignment="Top"/>
+        <ComboBox HorizontalAlignment="Left" SelectedItem="{Binding SelectedAmountOfArguments}" ItemsSource="{Binding AmountOfArguments}" Margin="502,36,0,0" VerticalAlignment="Top" Width="51" RenderTransformOrigin="4.781,0.547"/>
+        <TextBlock HorizontalAlignment="Left" Margin="606,39,0,0" TextWrapping="Wrap" Text="Кількість кон'юнкцій:" VerticalAlignment="Top" RenderTransformOrigin="1.128,-0.051"/>
+        <ComboBox SelectedItem="{Binding SelectedAmountOfDnf}" ItemsSource="{Binding AmountOfDnfs}" HorizontalAlignment="Left" Margin="725,36,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="2.809,0.404"/>
+        <Button Command="{Binding GenerateDdnf}" Content="Згенерувати" HorizontalAlignment="Left" Margin="845,37,0,0" VerticalAlignment="Top" Width="79"/>
+        <Button Command="{Binding CalculateTdnf}" Content="Обрахувати" HorizontalAlignment="Left" Margin="54,129,0,0" VerticalAlignment="Top" Width="75"/>
+        <TextBox IsReadOnly="True" Text="{Binding Tdnf}" HorizontalAlignment="Left" Height="23" Margin="223,125,0,0" TextWrapping="Wrap"  VerticalAlignment="Top" Width="411"/>
+        <TextBlock HorizontalAlignment="Left" Margin="151,129,0,0" TextWrapping="Wrap" Text="Результат:" VerticalAlignment="Top" RenderTransformOrigin="-1.967,0.799"/>
+        <Button Content="Додати" IsEnabled="{Binding EnableAddButton}" Command="{Binding AddTask}" HorizontalAlignment="Left" Margin="650,129,0,0" VerticalAlignment="Top" Width="48"/>
+        <ListView
+                  x:Name="InstallationListView"
+                  AlternationCount="2"
+                  SelectedItem="{Binding SelectedTask, UpdateSourceTrigger=PropertyChanged}"
+                  ItemsSource="{Binding Taskslist, UpdateSourceTrigger=PropertyChanged}" Height="200" Width="960" Margin="20,194,20,20">
+            <ListView.Template>
+                <ControlTemplate TargetType="ListView">
+                    <Grid>
+                        <Grid Background="WhiteSmoke" Grid.Row="1">
+                            <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                                  VerticalScrollBarVisibility="Auto">
+                                <ItemsPresenter />
+                            </ScrollViewer>
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </ListView.Template>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="BorderThickness" Value="0,0,0,1"></Setter>
+                    <Setter Property="Height" Value="40"></Setter>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListViewItem">
+                                <Grid x:Name="ItemGrid" Height="40" >
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="20"></RowDefinition>
+                                        <RowDefinition Height="20"></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="{Binding Question}" Foreground="#3D3D3D"
+                                               Grid.Row="0" 
+                                               />
+                                    <TextBlock Text="{Binding Answer}" Foreground="#3D3D3D"
+                                               Grid.Row="1" 
+                                               />
+
+                                </Grid>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="ItemGrid" Property="Background" Value="White" />
+                                    </Trigger>
+                                    <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                                        <Setter TargetName="ItemGrid" Property="Background" Value="White" />
+                                    </Trigger>
+                                    <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                        <Setter TargetName="ItemGrid" Property="Background" Value="WhiteSmoke" />
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" TargetName="ItemGrid" Value="#FBE8CE"></Setter>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" TargetName="ItemGrid" Value="#FBE8CE"></Setter>
+                                        <Setter TargetName="ItemGrid" Property="Cursor" Value="Hand" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.ItemContainerStyle>
+        </ListView>
+        <Button Content="Видалити" IsEnabled="{Binding EnableRemoveButton}" Command="{Binding RemoveTask}" HorizontalAlignment="Left" Margin="725,129,0,0" VerticalAlignment="Top" Width="65"/>
+        <Button Content="Показати запитання" IsEnabled="{Binding EnableRemoveButton}" Command="{Binding DisplayCommand}" HorizontalAlignment="Left" Margin="824,129,0,0" VerticalAlignment="Top" Width="124"/>
+        <TextBlock HorizontalAlignment="Left" Margin="25,37,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="Визначити "/><Run Text="повідомлення"/><Run Text=":"/><LineBreak/><Run/></TextBlock>
+        <TextBlock HorizontalAlignment="Left" Margin="71,169,0,0" TextWrapping="Wrap" Text="Алгоритм:" VerticalAlignment="Top"/>
+        <ComboBox HorizontalAlignment="Left" ItemsSource="{Binding AlgorithmList}" SelectedItem="{Binding SelectedAlgorithm}" Margin="179,165,0,0" VerticalAlignment="Top" Width="120"/>
+
+    </Grid>
+</Window>
