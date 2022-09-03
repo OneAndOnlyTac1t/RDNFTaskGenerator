@@ -53,9 +53,9 @@ namespace TDNFGenerator.Model
                 result = SimplifyDDNF(result);                   
             }
             return result;
-        }              
+        }
         //метод видалення співмножника
-        private static List<string> RemoveElement(List<string> input, string conjuction, List<string> resultInput)
+        public static List<string> RemoveElement(List<string> input, string conjuction, List<string> resultInput = null)
         {
             //розбиваємо вхідну кон'юнкцію на співмножники
             List<string> elements = conjuction.Split(' ').ToList<string>();
@@ -65,7 +65,7 @@ namespace TDNFGenerator.Model
             {
                 //знаходимо список всіх змінних у розглядаємій кон'юнкції, які не є розглянутим співмножником
                 var isBreakable = false;
-                var notElem = elements.Where(k => !k.Equals(elem)).ToList();
+                var notElemList = elements.Where(k => !k.Equals(elem)).ToList();
 
                 //розгядаємо всі кон'юнкції на вході
                 foreach (var comparibleConjuction in input)
@@ -84,14 +84,14 @@ namespace TDNFGenerator.Model
                             {
                                 //порівнюємо кількість співмножників, які не є розглядаємим елементом, у вхідній кон'юнкції та розглянутій кон'юнкції
                                 //та дозволяємо видалити його з вхідної кон'юнкції, якщо їх кількість рівна
-                                foreach (var elemInNotelem in notElem)
+                                foreach (var elementInNotElemList in notElemList)
                                 {
-                                    if (comparibleElements.Contains(elemInNotelem))
+                                    if (comparibleElements.Contains(elementInNotElemList))
                                     {
                                         counter++;
                                     }
                                 }
-                                if (counter == notElem.Count)
+                                if (counter == notElemList.Count)
                                 {
                                     isBreakable = true;
                                     break;
