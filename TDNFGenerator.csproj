@@ -57,22 +57,50 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DisplayTestTaskWindow.xaml.cs">
+      <DependentUpon>DisplayTestTaskWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Alghorithms\AlghorithmsContext.cs" />
+    <Compile Include="Model\Alghorithms\PetricksAlgorithm.cs" />
+    <Compile Include="Model\Data\SingleImplicant.cs" />
+    <Compile Include="Model\Interfaces\IXmlSaveMethod.cs" />
+    <Compile Include="Model\Data\TestOption.cs" />
+    <Compile Include="Model\XmlSavers\XmlSaverContext.cs" />
+    <Compile Include="Model\XmlSavers\XMLShortAnswerSaver.cs" />
+    <Compile Include="Model\XmlSavers\XMLTestSaver.cs" />
+    <Compile Include="ViewModel\DisplayTestTaskWindowViewModel.cs" />
+    <Compile Include="ViewModel\EditTaskWindowViewModel.cs" />
     <Compile Include="DisplayWindow.xaml.cs">
       <DependentUpon>DisplayWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Enums\Enums.cs" />
+    <Compile Include="EditTaskWindow.xaml.cs">
+      <DependentUpon>EditTaskWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MessageWindow.xaml.cs">
       <DependentUpon>MessageWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Model\Interfaces\IMinimizationAlgorithm.cs" />
     <Compile Include="Model\DDNF.cs" />
-    <Compile Include="Model\QuineMcClaski.cs" />
-    <Compile Include="Model\SingleTask.cs" />
-    <Compile Include="Model\TDNF.cs" />
+    <Compile Include="Model\Data\ITask.cs" />
+    <Compile Include="Model\Alghorithms\QuineMcClaski.cs" />
+    <Compile Include="Model\Data\SingleTask.cs" />
+    <Compile Include="Model\Data\SingleTestTask.cs" />
+    <Compile Include="Model\Alghorithms\TDNF.cs" />
+    <Compile Include="Model\WrongAnswersGenerator.cs" />
     <Compile Include="Model\XmlQuizWriter.cs" />
     <Compile Include="RelayCommand\RelayCommand.cs" />
     <Compile Include="ViewModel\MainWindowViewModel.cs" />
-    <Compile Include="ViewModel\MainWindowViewModelBase.cs" />
+    <Compile Include="ViewModel\BindableBase.cs" />
+    <Page Include="DisplayTestTaskWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="DisplayWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="EditTaskWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -123,6 +151,9 @@
     <None Include="README.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Views\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -5,17 +5,20 @@ namespace TDNFGenerator.Model
 {
     public class DDNF
     {
+        static Random random = new Random();
+        static object syncLock = new object();
         public static string GenerateDDNF(int arguments, int dnfs, int maxDnfs)
         {
             var _enum = GetEnum(arguments);
             string[] dnf;
             var resultList = new List<string[]>();
             var result = "";
-            Random random = new Random();
             int i = 0;
             do
             {
-                var value = random.Next(0, dnfs);
+                int value;
+                lock(syncLock)
+                 value = random.Next(0, maxDnfs);
                 dnf = _enum[value];
                 if (resultList.Contains(dnf))
                 {
@@ -36,7 +39,7 @@ namespace TDNFGenerator.Model
                 {
                     parsedArgs += arg + " ";
                 }
-                result += parsedArgs + "V ";
+                result += parsedArgs + "+ ";
             }
             result = result.Remove(result.Length - 3, 3);
             return result;

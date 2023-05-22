@@ -5,23 +5,40 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using TDNFGenerator.Model;
+using TDNFGenerator.Model.Interfaces;
+using TDNFGenerator.Model.Data;
+using TDNFGenerator.Views;
+using TDNFGenerator.Model.XmlSavers;
+using TDNFGenerator.Model.Alghorithms;
 
 namespace TDNFGenerator.ViewModel
 {
-    public class MainWindowViewModel:MainWindowViewModelBase
+    public class MainWindowViewModel : BindableBase
     {
+        ObservableCollection<ITask> selectedTaskType;
+        //  IXmlSaveMethod chosenXmlSaveMethod;
+        XmlSaverContext xmlSaverContext;
+          AlghorithmsContext alghorithmsContext;
         SingleTask _selectedItem;
-        ObservableCollection<SingleTask> _tasks;
+        SingleTestTask _selectedTestTask;
+        ObservableCollection<ITask> _tasks;
+        ObservableCollection<ITask> _testTasks;
+        Visibility _testAnswersVisibility;
+        Visibility _shortAnswersVisibility;
         RelayCommand.RelayCommand _generateCommand;
         RelayCommand.RelayCommand _calculateCommand;
         RelayCommand.RelayCommand _addCommand;
+        RelayCommand.RelayCommand _editTestTaskCommand;
         RelayCommand.RelayCommand _saveCommand;
         RelayCommand.RelayCommand _openMessageWindow;
         RelayCommand.RelayCommand _removeCommand;
         RelayCommand.RelayCommand _displayCommand;
         List<int> _amountOfDnfs;
+        ObservableCollection<TestOption> _testAnswers;
         readonly List<int> _amountOfArguments;
         readonly List<string> _algorithmList;
+        readonly List<string> _answersTypeList;
+        string selectedAnswerType;
         string selectedAlgorithm;
         string _ddnf;
         string _text;
@@ -31,6 +48,33 @@ namespace TDNFGenerator.ViewModel
         int _selectedAmountOfDnf;
         bool _enableRemoveButton;
         bool _enableAddButton;
+        bool _setMessageForAllTasks;
+        bool _isTestEnabled = false;
+        #region Properties
+        public Visibility TestAnswersVisibility
+        {
+            get
+            {
+                return _testAnswersVisibility;
+            }
+            set
+            {
+                _testAnswersVisibility = value;
+                OnPropertyChanged(nameof(TestAnswersVisibility));
+            }
+        }
+        public Visibility ShortAnswersVisibility
+        {
+            get
+            {
+                return _shortAnswersVisibility;
+            }
+            set
+            {
+                _shortAnswersVisibility = value;
+                OnPropertyChanged(nameof(ShortAnswersVisibility));
+            }
+        }
         public string SelectedAlgorithm
         {
             get
@@ -40,7 +84,42 @@ namespace TDNFGenerator.ViewModel
             set
             {
                 selectedAlgorithm = value;
+                if (selectedAlgorithm == "Градієнтного спуску")
+                {
+                    alghorithmsContext?.SetAlgorithm(new TDNF());
+                    Taskslist?.Clear();
+                    TestTasksList?.Clear();
+                }
+                else
+                {
+                    alghorithmsContext?.SetAlgorithm(new QuineMcClaski());
+                    Taskslist?.Clear();
+                    TestTasksList?.Clear();
+                }
+                selectedAlgorithm = value;
                 OnPropertyChanged(nameof(SelectedAlgorithm));
+            }
+        }
+        public string SelectedAnswerType
+        {
+            get
+            {
+                return selectedAnswerType;
+            }
+            set
+            {
+                selectedAnswerType = value;
+                if (selectedAnswerType== "Тестове завдання")
+                {
+                    xmlSaverContext?.SetXmlSaveMethod( new XMLTestSaver());
+                    selectedTaskType = TestTasksList;
+                }
+                else
+                {
+                    xmlSaverContext?.SetXmlSaveMethod(new XMLShortAnswerSaver());
+                    selectedTaskType = Taskslist;
+                }
+                OnPropertyChanged(nameof(SelectedAnswerType));
             }
         }
         public List<string> AlgorithmList
@@ -48,9 +127,16 @@ namespace TDNFGenerator.ViewModel
             get
             {
                 return _algorithmList;
-            }            
+            }
         }
-        public ObservableCollection<SingleTask> Taskslist
+        public List<string> AnswersTypeList
+        {
+            get
+            {
+                return _answersTypeList;
+            }
+        }
+        public ObservableCollection<ITask> Taskslist
         {
             get
             {
@@ -59,10 +145,34 @@ namespace TDNFGenerator.ViewModel
             set
             {
                 _tasks = value;
-                 OnPropertyChanged(nameof(Taskslist));
+                OnPropertyChanged(nameof(Taskslist));
             }
         }
-        public string Text
+        public ObservableCollection<TestOption> TestAnswers
+        {
+            get
+            {
+                return _testAnswers;
+            }
+            set
+            {
+                _testAnswers = value;
+                OnPropertyChanged(nameof(TestAnswers));
+            }
+        }
+        public ObservableCollection<ITask> TestTasksList
+        {
+            get
+            {
+                return _testTasks;
+            }
+            set
+            {
+                _testTasks = value;
+                OnPropertyChanged(nameof(TestTasksList));
+            }
+        }
+        public string DisplayText
         {
             get
             {
@@ -71,7 +181,7 @@ namespace TDNFGenerator.ViewModel
             set
             {
                 _text = value;
-                OnPropertyChanged(nameof(Text));
+                OnPropertyChanged(nameof(DisplayText));
             }
         }
         public bool EnableRemoveButton
@@ -84,6 +194,18 @@ namespace TDNFGenerator.ViewModel
             {
                 _enableRemoveButton = value;
                 OnPropertyChanged(nameof(EnableRemoveButton));
+            }
+        }
+        public bool SetMessageForAllTasks
+        {
+            get
+            {
+                return _setMessageForAllTasks;
+            }
+            set
+            {
+                _setMessageForAllTasks = value;
+                OnPropertyChanged(nameof(SetMessageForAllTasks));
             }
         }
         public bool EnableAddButton
@@ -123,6 +245,19 @@ namespace TDNFGenerator.ViewModel
                 OnPropertyChanged(nameof(SelectedTask));
             }
         }
+        public SingleTestTask SelectedTestTask
+        {
+            get
+            {
+                return _selectedTestTask;
+            }
+            set
+            {
+                _selectedTestTask = value;
+                EnableRemoveButton = true;
+                OnPropertyChanged(nameof(SelectedTestTask));
+            }
+        }
         public ICommand AddTask
         {
             get
@@ -132,6 +267,28 @@ namespace TDNFGenerator.ViewModel
                         () => this.AddItem());
 
                 return _addCommand;
+            }
+        }
+        public ICommand WrongAnswersCommand
+        {
+            get
+            {
+                if (_editTestTaskCommand == null)
+                    _editTestTaskCommand = new RelayCommand.RelayCommand(
+                        () =>
+                        {
+                            if (SelectedTestTask == null)
+                            {
+                                MessageBox.Show("Запитання не вибрано");
+                            }
+                            else
+                            {
+                                EditTaskWindow window = new EditTaskWindow(SelectedTestTask, this);
+                                window.ShowDialog();
+                            }
+                        }); 
+
+                return _editTestTaskCommand;
             }
         }
         public ICommand SaveCommand
@@ -268,16 +425,25 @@ namespace TDNFGenerator.ViewModel
                 OnPropertyChanged(nameof(SelectedAmountOfDnf));
             }
         }
+        #endregion
         public MainWindowViewModel()
         {
-            _amountOfArguments = new List<int>() { 2, 3, 4};
-            _algorithmList = new List<string>() {"Алгоритм спрощення", "Квайна-МакКласкі" };
+            _amountOfArguments = new List<int>() { 2, 3, 4 };
+            _algorithmList = new List<string>() { "Градієнтного спуску", "Квайна-МакКласкі" };
+            _answersTypeList = new List<string>() { "Відкрита коротка відповідь", "Тестове завдання" };
+            SelectedAnswerType = AnswersTypeList[0];
             SelectedAlgorithm = AlgorithmList[0];
             SelectedAmountOfArguments = AmountOfArguments[0];
             SelectedAmountOfDnf = AmountOfDnfs[0];
-            Taskslist = new ObservableCollection<SingleTask>();
+            TestTasksList = new ObservableCollection<ITask>();
+            ShortAnswersVisibility = Visibility.Visible;
+            TestAnswersVisibility = Visibility.Hidden;
+            Taskslist = new ObservableCollection<ITask>();
             EnableRemoveButton = false;
             EnableAddButton = false;
+            alghorithmsContext = new AlghorithmsContext(new TDNF());
+            xmlSaverContext = new XmlSaverContext(new XMLShortAnswerSaver());
+            selectedTaskType = Taskslist;
         }
         List<int> CalculateDnfAmount()
         {
@@ -295,47 +461,66 @@ namespace TDNFGenerator.ViewModel
         }
         void Calculate()
         {
-            if (SelectedAlgorithm == "Алгоритм спрощення")
+            if (DDNF != null)
             {
-                if (DDNF != null)
+                Tdnf = alghorithmsContext.ExecuteMinimization(DDNF);
+                EnableAddButton = true;
+                if (SelectedAnswerType == "Тестове завдання")
                 {
-                    Tdnf = Model.TDNF.SimplifyDDNF(DDNF);
-                    EnableAddButton = true;
+                    var gen = new WrongAnswersGenerator(Tdnf, DDNF, alghorithmsContext);
+                    _isTestEnabled = true;
+                    TestAnswers = new ObservableCollection<TestOption>(gen.Answers);
                 }
                 else
                 {
-                    MessageBox.Show("Введіть вхідну ДДНФ");
+                    _isTestEnabled = false;
                 }
-            }else if (SelectedAlgorithm == "Квайна-МакКласкі")
-            {
-                if(DDNF != null)
-                {
-                    Tdnf = Model.QuineMcClaski.QuineMcClaskiAlgorithm(DDNF);
-                    EnableAddButton = true;
-                }
-                else
-                {
-                    MessageBox.Show("Введіть вхідну ДДНФ");
-                }                
             }
+            else
+            {
+                MessageBox.Show("Введіть вхідну ДДНФ");
+            }
+           
         }
         void AddItem()
         {
-            Taskslist.Add(new SingleTask(Text) { Question = DDNF, Answer = Tdnf});
+            if (!_isTestEnabled)
+            {
+               // if (SetMessageForAllTasks)
+                Taskslist.Add(new SingleTask() { Question = DDNF, CorrectAnswer = Tdnf, Text = DisplayText });
+                ShortAnswersVisibility = Visibility.Visible;
+                TestAnswersVisibility = Visibility.Hidden;
+            }
+            else
+            {
+                TestTasksList.Add(new SingleTestTask() { CorrectAnswer = Tdnf, Question = DDNF, AllTestAnswers = TestAnswers, Text = DisplayText });
+                ShortAnswersVisibility = Visibility.Hidden;
+                TestAnswersVisibility = Visibility.Visible;
+            }
         }
         void RemoveItem()
         {
-            Taskslist.Remove(SelectedTask);
-            EnableRemoveButton = false;
+            if (_isTestEnabled)
+            {
+                TestTasksList.Remove(SelectedTestTask);
+                EnableRemoveButton = false;
+            }
+            else
+            {
+                Taskslist.Remove(SelectedTask);
+                EnableRemoveButton = false;
+            }
         }
         void Save()
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "XML file (*.xml)|*.xml";
             if (saveFileDialog.ShowDialog() == true)
-                Model.XmlQuizWriter.CreateXmlFile(Taskslist, saveFileDialog.FileName);
-
+            {              
+                   xmlSaverContext.ExecuteXmlSaveMethod(selectedTaskType, alghorithmsContext,  saveFileDialog.FileName);              
+            }
         }
+
         void OpenWindow()
         {
             MessageWindow messageWindow = new MessageWindow(this);
@@ -343,9 +528,17 @@ namespace TDNFGenerator.ViewModel
         }
         void Display()
         {
-            DisplayWindow displayWindow = new DisplayWindow(this);
-            DisplayedTask = SingleTask.Text + SelectedTask.Question;
-            displayWindow.ShowDialog();
+            if (!_isTestEnabled)
+            {
+                DisplayWindow displayWindow = new DisplayWindow(this);
+                DisplayedTask = SelectedTask.Text + "\n" + SelectedTask.Question;
+                displayWindow.ShowDialog();
+            }
+            else
+            {
+                DisplayTestTaskWindow displayTestTaskWindow = new DisplayTestTaskWindow(this, SelectedTestTask);
+                displayTestTaskWindow.ShowDialog();
+            }
         }
     }
 }

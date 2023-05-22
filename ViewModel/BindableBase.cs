@@ -3,7 +3,7 @@
 namespace TDNFGenerator.ViewModel
 {
 
-    public abstract class MainWindowViewModelBase : INotifyPropertyChanged
+    public abstract class BindableBase : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 

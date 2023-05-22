@@ -8,8 +8,8 @@
         ResizeMode="NoResize"
         Title="Вікно повідомлення" Height="250" Width="400">
     <Grid>
-        <TextBox HorizontalAlignment="Left" Height="139" Margin="46,23,0,0" TextWrapping="Wrap" Text="{Binding Text}" VerticalAlignment="Top" Width="315"/>
-        <Button Content="OK" HorizontalAlignment="Left" Margin="166,179,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
-
+        <TextBox HorizontalAlignment="Left" Height="139" Margin="46,23,0,0" TextWrapping="Wrap" Text="{Binding DisplayText}" VerticalAlignment="Top" Width="315"/>
+        <Button Content="OK" HorizontalAlignment="Left" Margin="166,193,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
+        <TextBlock HorizontalAlignment="Left" Margin="46,174,0,0" TextWrapping="Wrap" Text="Це повідомлення заастосується для всіх завдань" VerticalAlignment="Top"/>
     </Grid>
 </Window>

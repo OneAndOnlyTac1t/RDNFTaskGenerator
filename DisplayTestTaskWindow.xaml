@@ -1,0 +1,32 @@
+﻿<Window x:Class="TDNFGenerator.DisplayTestTaskWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TDNFGenerator"
+        mc:Ignorable="d"
+        Title="Вікно перегляду тестових завдань" Height="400" Width="500">
+    <Grid>
+        <TextBox HorizontalAlignment="Left" IsReadOnly="True" Height="101" Margin="20,23,0,0" TextWrapping="Wrap" Text="{Binding Message}" VerticalAlignment="Top" Width="450"/>
+        <TextBox HorizontalAlignment="Left" IsReadOnly="True" Height="20" Margin="158,297,0,0" TextWrapping="Wrap" Text="{Binding CorrectAnswer}" VerticalAlignment="Top" Width="126"/>
+        <ListView Height="120" Width="460" HorizontalAlignment="Center" VerticalAlignment="Bottom" x:Name="TestAnswersListView" ItemsSource="{Binding Path=AllAnswers, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10,0,10,100">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Height" Value="15"></Setter>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListViewItem">
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton Margin="10,0,0,0" IsChecked="False" VerticalAlignment="Center" IsEnabled="False"></RadioButton>
+                                    <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Path=Content}" Foreground="#3D3D3D"/>
+                                </StackPanel>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.ItemContainerStyle>
+        </ListView>
+        <Label Content="Правильна відповідь:" HorizontalAlignment="Left" Margin="20,291,0,0" VerticalAlignment="Top" Width="133"/>
+        <Button Content="Закрити" HorizontalAlignment="Left" Margin="209,332,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
+    </Grid>
+</Window>

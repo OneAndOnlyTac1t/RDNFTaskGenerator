@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using TDNFGenerator.Model.Interfaces;
 
 namespace TDNFGenerator.Model
 {
     //!x !y !z V z !x !y V y !x z V x y z V !z x y V x !y !z
-    public class TDNF
+    public class TDNF : IMinimizationAlgorithm
     {
         //метод, який представляє собой весь алгоритм
-        public static string SimplifyDDNF(string ddnf)
+        public  string MinimizeFunction(string ddnf)
         {
             string result = "";
 
             //розбиваємо вхідну дднф на елементантарні кон'юнкції
-            string[] conjuctionsArray = ddnf.Split('V');
+            string[] conjuctionsArray = ddnf.Split('+');
             List<string> conjuctionsList = new List<string>();
             foreach (var conj in conjuctionsArray)
             {
@@ -35,7 +36,7 @@ namespace TDNFGenerator.Model
             {
                 if (bufferResult.Count != 1)
                 {
-                    result += elem + " V ";
+                    result += elem + " + ";
                 }
                 else
                 {
@@ -50,7 +51,7 @@ namespace TDNFGenerator.Model
             //перевірка на те, чи було щось вилучено під час виконання алгоритму(вхід в рекурсію у випадку true)
             if (result != ddnf)
             {
-                result = SimplifyDDNF(result);                   
+                result = MinimizeFunction(result);                   
             }
             return result;
         }
